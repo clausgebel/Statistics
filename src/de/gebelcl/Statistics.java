@@ -3,43 +3,59 @@ package de.gebelcl;
 public class Statistics {
     private int maxNumberOfDigits;
     private int numberOfDigits;
-    private long digitRow;
+    private long leftDigitRow, rightDigitRow;
     private int digitPosition;
 
     public Statistics(int maxNumberOfDigits) {
         this.maxNumberOfDigits = maxNumberOfDigits;
     }
 
-    public void printDigitRow() {
-        System.out.println(Long.toBinaryString(digitRow));
-    }
 
-    public void printBinaryNumber(long number) {
-        System.out.println(String.format("%8s", Long.toBinaryString(number)).replace(' ', '0'));
+    public void printDigitRow() {
+        if (maxNumberOfDigits > 63) {
+            String leftDigitString = String.format("%63s", Long.toBinaryString(leftDigitRow)).replace(' ', '0');
+            int beginIndex = 126 - maxNumberOfDigits;
+            System.out.print(leftDigitString.substring(beginIndex));
+            System.out.println(String.format("%63s", Long.toBinaryString(rightDigitRow)).replace(' ', '0'));
+        } else  {
+            String leftDigitString = String.format("%63s", Long.toBinaryString(rightDigitRow)).replace(' ', '0');
+            int beginIndex = 63 - maxNumberOfDigits;
+            System.out.print(leftDigitString.substring(beginIndex));
+        }
+
+
     }
 
     public boolean setPosition(int digitPosition) {
-        if (digitPosition > 62) {
-            System.err.println("Error: the maximum for digitPosition is 62.");
+        if (digitPosition > maxNumberOfDigits ||digitPosition > 126 || digitPosition < 0) {
+            System.err.println("Error: digitPosition out of range.");
             System.exit(1);
         }
-        // Put the 1 which has to be set on the position 'digitPosition'
-        long binaryDigitPosition = 1 << digitPosition;
-        // if the 1 is not already set, set it in the variable digitRow
-        if ((digitRow & binaryDigitPosition) == 0) {
-            digitRow = digitRow ^ binaryDigitPosition;
-            printBinaryNumber(digitRow);
-            return true;
+
+        if (digitPosition > 62) {
+            // Put the 1 which has to be set on the position 'digitPosition'
+            long binaryDigitPosition = 1L << (digitPosition - 63);
+            // if the 1 is not already set, set it in the variable leftDigitRow
+            if ((leftDigitRow & binaryDigitPosition) == 0) {
+                leftDigitRow = leftDigitRow ^ binaryDigitPosition;
+                return true;
+            } else {
+
+                return false;
+            }
         } else {
-            printBinaryNumber(digitRow);
-            return false;
+            long binaryDigitPosition = 1L << digitPosition;
+            // if the 1 is not already set, set it in the variable rightDigitRow
+            if ((rightDigitRow & binaryDigitPosition) == 0) {
+                rightDigitRow = rightDigitRow ^ binaryDigitPosition;
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
     public int getPosition() {
         return digitPosition;
     }
-
-    // 0-62
-
 }
